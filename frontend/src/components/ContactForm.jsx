@@ -8,6 +8,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 export default function ContactForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -15,10 +16,11 @@ export default function ContactForm() {
     e.preventDefault()
     setLoading(true)
     try {
-      await axios.post(`${API_BASE}/api/contact`, { name, email, message })
+      await axios.post(`${API_BASE}/api/contact`, { name, email, phone, message })
       toast.success("✨ Message sent! We'll be in touch soon.")
       setName('')
       setEmail('')
+      setPhone('')
       setMessage('')
     } catch (err) {
       const msg =
@@ -118,6 +120,23 @@ export default function ContactForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1.5 w-full rounded-xl border border-plum/15 bg-cream/80 px-4 py-3 text-plum outline-none ring-rose-gold/30 transition focus:border-rose-gold focus:ring-2"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="text-sm font-medium text-plum">
+                Contact number
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                placeholder="+91 98765 43210"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-plum/15 bg-cream/80 px-4 py-3 text-plum outline-none ring-rose-gold/30 transition placeholder:text-plum/40 focus:border-rose-gold focus:ring-2"
               />
             </div>
             <div>

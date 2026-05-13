@@ -23,7 +23,7 @@ Copy `backend/.env.example` to `backend/.env` and adjust values:
 npm run dev
 ```
 
-API: `POST http://localhost:5000/api/contact` with JSON `{ "name", "email", "message" }`.
+API: `POST http://localhost:5000/api/contact` with JSON `{ "name", "email", "phone", "message" }`.
 
 ## Frontend
 
