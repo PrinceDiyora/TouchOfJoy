@@ -90,6 +90,18 @@ Ensure this repo (with `frontend/` and `backend/`) is on GitHub. Vercel and Rend
 - Open the Vercel site, scroll to **Get In Touch**, submit the form — you should see the success toast and a new document in Atlas.
 - Optional: open `https://<your-render-host>/api/health` — should return `{"ok":true}`.
 
+### Render deploy exits with status 1
+
+The API only starts after MongoDB connects. Common causes:
+
+1. **`MONGODB_URI` not set** on the Render service (Environment tab). Render does not use your local `.env` file from Git — you must add variables in the dashboard.
+2. **Wrong URI** or password with special characters — URL-encode the password in the Atlas string.
+3. **Atlas Network Access** — allow **`0.0.0.0/0`** (or Render’s egress IPs) so Render can reach the cluster.
+
+Open **Render → your service → Logs** to see the exact error (the app logs `[TouchOfJoy]` messages).
+
+Optional: in Render → **Environment**, set **`NODE_VERSION`** to **`20`** if you hit odd runtime issues on the default Node version.
+
 ### Order summary
 
 Atlas → GitHub → **Render** (get API URL) → **Vercel** (`VITE_API_URL`) → **Render** again (`FRONTEND_URL` = Vercel URL) → test form.
