@@ -47,7 +47,11 @@ export default function Testimonials() {
   const active = testimonials[index]
 
   return (
-    <section className="scroll-mt-24 bg-gradient-to-b from-cream via-blush/40 to-cream px-4 py-20 md:px-6 md:py-28">
+    <section
+      id="reviews"
+      aria-label="Client reviews and testimonials"
+      className="scroll-mt-24 bg-gradient-to-b from-cream via-blush/40 to-cream px-4 py-20 md:px-6 md:py-28"
+    >
       <div className="mx-auto max-w-3xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
