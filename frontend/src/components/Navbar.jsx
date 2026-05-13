@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 
 const links = [
@@ -28,6 +29,7 @@ export default function Navbar() {
   }, [open])
 
   return (
+    <>
     <motion.header
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -85,9 +87,17 @@ export default function Navbar() {
           </svg>
         </button>
       </nav>
+    </motion.header>
 
-      {open && (
-        <div className="fixed inset-0 top-[72px] z-40 bg-plum/95 backdrop-blur-sm md:hidden">
+    {typeof document !== 'undefined' &&
+      open &&
+      createPortal(
+        <div
+          className="fixed inset-x-0 bottom-0 left-0 right-0 top-[4.5rem] z-[100] bg-plum md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Main menu"
+        >
           <ul className="flex flex-col gap-6 px-8 py-10 text-lg font-medium text-cream">
             {links.map((l) => (
               <li key={l.href}>
@@ -110,8 +120,9 @@ export default function Navbar() {
               </a>
             </li>
           </ul>
-        </div>
+        </div>,
+        document.body,
       )}
-    </motion.header>
+    </>
   )
 }
