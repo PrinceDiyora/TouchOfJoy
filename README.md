@@ -37,8 +37,59 @@ App runs at [http://localhost:5173](http://localhost:5173). The contact form pos
 
 For production builds, set `VITE_API_URL` to your deployed API URL (e.g. on Render) before `npm run build`.
 
-## Deployment notes
+## Deploy fully (Vercel + Render + MongoDB Atlas)
 
-- **Frontend (Vercel):** `npm run build` in `frontend/`, deploy `frontend/dist`, set `VITE_API_URL`.
-- **Backend (Render):** set root to `backend`, add `MONGODB_URI` for Atlas.
-- **Database:** MongoDB Atlas free tier is enough for contact submissions.
+### 1. MongoDB Atlas
+
+1. Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free **M0** cluster.
+2. **Database Access:** create a user with password (save the password).
+3. **Network Access:** add `0.0.0.0/0` (allow from anywhere) so **Render** can connect — or use Atlas “Add Current IP” plus Render’s outbound IPs if you prefer a tighter rule.
+4. **Connect** → Drivers → copy the **SRV** string (`mongodb+srv://...`), replace `<password>` and set the database name in the path, e.g. `...mongodb.net/touchofjoy?retryWrites=true&w=majority`.
+
+### 2. Push code to GitHub
+
+Ensure this repo (with `frontend/` and `backend/`) is on GitHub. Vercel and Render both deploy from Git.
+
+### 3. Render — backend (API)
+
+1. [Render Dashboard](https://dashboard.render.com) → **New +** → **Web Service**.
+2. Connect your GitHub repo → choose this repository.
+3. Settings:
+   - **Name:** e.g. `touch-of-joy-api`
+   - **Root Directory:** `backend`
+   - **Runtime:** Node
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Instance type:** Free (cold starts: first request after idle may take ~30–60s)
+4. **Environment** (Environment tab):
+   - `MONGODB_URI` = your Atlas SRV connection string
+   - `FRONTEND_URL` = leave empty for the first deploy, or set after step 4 (see below)
+5. Create Web Service and wait for deploy. Copy the service URL, e.g. `https://touch-of-joy-api.onrender.com`.
+
+**CORS:** The API allows `localhost` for dev plus any origins listed in `FRONTEND_URL` (comma-separated, **no trailing slash**), e.g. `https://touch-of-joy.vercel.app`.
+
+### 4. Vercel — frontend (site)
+
+1. [Vercel Dashboard](https://vercel.com) → **Add New…** → **Project** → import the same GitHub repo.
+2. **Root Directory:** set to `frontend` (important).
+3. Framework should detect **Vite**. Build: `npm run build`, output: `dist` (Vercel usually sets this automatically).
+4. **Environment Variables:**
+   - `VITE_API_URL` = your Render URL **without** a trailing slash, e.g. `https://touch-of-joy-api.onrender.com`  
+     (The contact form calls `${VITE_API_URL}/api/contact`.)
+5. Deploy. Copy your production URL, e.g. `https://touch-of-joy.vercel.app`.
+
+### 5. Finish CORS on Render
+
+1. In Render → your Web Service → **Environment** → add or update:
+   - `FRONTEND_URL` = your exact Vercel URL, e.g. `https://touch-of-joy.vercel.app`  
+     (For multiple domains, comma-separate: `https://app.vercel.app,https://www.yourdomain.com`)
+2. **Manual Deploy** → **Clear build cache & deploy** (or just redeploy) so the new env applies.
+
+### 6. Verify
+
+- Open the Vercel site, scroll to **Get In Touch**, submit the form — you should see the success toast and a new document in Atlas.
+- Optional: open `https://<your-render-host>/api/health` — should return `{"ok":true}`.
+
+### Order summary
+
+Atlas → GitHub → **Render** (get API URL) → **Vercel** (`VITE_API_URL`) → **Render** again (`FRONTEND_URL` = Vercel URL) → test form.

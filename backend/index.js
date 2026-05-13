@@ -8,9 +8,16 @@ const app = express()
 const PORT = process.env.PORT || 5000
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/touchofjoy'
 
+const devOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173']
+const prodOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+const allowedOrigins = [...devOrigins, ...prodOrigins]
+
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: allowedOrigins,
     credentials: true,
   }),
 )
